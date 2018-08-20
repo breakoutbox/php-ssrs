@@ -39,13 +39,15 @@ class Report {
     protected $_executionNameSpace = 'http://schemas.microsoft.com/sqlserver/2005/06/30/reporting/reportingservices';
     protected $_headerExecutionLayout = '<ExecutionHeader xmlns="%s"><ExecutionID>%s</ExecutionID></ExecutionHeader>';
     protected $_sessionId;
+    protected $additionalSoapOptions = array();
 
     /**
      *
      * @param string $baseUri
      * @param array $options
+     * @param array $additionalSoapOptions
      */
-    public function __construct($baseUri, array $options = array()) {
+    public function __construct($baseUri, array $options = array(), array $additionalSoapOptions = array()) {
         $this->setBaseUri($baseUri);
 
         if (array_key_exists('username', $options)) {
@@ -57,6 +59,8 @@ class Report {
             $this->setPassword($options['password']);
             unset($options['password']);
         }
+
+        $this->additionalSoapOptions = $additionalSoapOptions;
 
         $this->setOptions($options);
     }
@@ -467,6 +471,7 @@ class Report {
             'cache_wsdl_path' => $this->options['cache_wsdl_path'],
             'curl_options' => $this->options['curl_options'],
         );
+        $options = array_merge($options, $this->additionalSoapOptions);
 
         $client = new SoapNTLM($this->_baseUri . '/' . $path, $options);
 
